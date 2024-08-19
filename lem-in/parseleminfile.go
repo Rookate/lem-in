@@ -148,14 +148,14 @@ func ParseLeminFile(fname string) (*LeminData, error) {
 				data = nil
 				return nil, fmt.Errorf("unknown room '%s' at line %d", vals[0], lineCount)
 			}
-			path.From = *from
+			path.From = from
 
 			to := data.GetRoomFromName(vals[1])
 			if to == nil {
 				data = nil
 				return nil, fmt.Errorf("unknown room '%s' at line %d", vals[1], lineCount)
 			}
-			path.To = *to
+			path.To = to
 
 			path.Distance = math.Sqrt(float64((to.X-from.X)*(to.X-from.X)) + float64((to.Y-from.Y)*(to.Y-from.Y)))
 

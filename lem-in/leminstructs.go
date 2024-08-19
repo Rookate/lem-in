@@ -18,8 +18,8 @@ type Ant struct {
 }
 
 type Path struct {
-	From     Room
-	To       Room
+	From     *Room
+	To       *Room
 	Distance float64
 }
 
@@ -68,6 +68,8 @@ Failing cases are :
 
 - Any room beginning with 'L' specifically;
 
+- Any room's name being the same as another's;
+
 - Any path linking a room to itself;
 
 - Any path containing a room whose name does not exist;
@@ -101,6 +103,12 @@ func (lem *LeminData) IsValidData() (bool, string) {
 			return false, fmt.Sprintf("room '%s' cannot begin with 'L'", room.Name)
 		}
 		names = append(names, room.Name)
+	}
+
+	for i, name := range names {
+		if common.IndexOf(names[i+1:], name) != -1 {
+			return false, fmt.Sprintf("duplicate room name '%s'", name)
+		}
 	}
 
 	for _, path1 := range lem.Paths {

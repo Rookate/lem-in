@@ -6,19 +6,27 @@ import (
 )
 
 type Room struct {
-	Name string
-	X    int
-	Y    int
+	AntNb uint
+	Name  string
+	X     int
+	Y     int
+}
+
+type Ant struct {
+	Name          string
+	OccupyingRoom *Room
 }
 
 type Path struct {
-	From Room
-	To   Room
+	From     Room
+	To       Room
+	Distance float64
 }
 
 type LeminData struct {
 	FileContent string // Content of the read file saved per project requirements
 	AntAmount   uint   // Amount of ants present in the farm
+	AntList     []Ant
 	StartRoom   Room   // Room where all the ants start into
 	EndRoom     Room   // Room where ants must finish
 	OtherRooms  []Room // Array of checkpoint rooms

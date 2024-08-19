@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"common"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -32,6 +33,10 @@ func ParseLeminFile(fname string) (*LeminData, error) {
 		// Comment (or not) parsing bit
 		if line[0] == '#' {
 			if line[1] != '#' {
+				if line[1] == ' ' {
+					data = nil
+					return nil, fmt.Errorf("illegal syntax at line %d", lineCount)
+				}
 				continue
 			} else {
 				switch line[2:] {
@@ -99,13 +104,23 @@ func ParseLeminFile(fname string) (*LeminData, error) {
 			}
 			room.Y = y
 
+			room.AntNb = 0
+
 			if startNext {
 				if data.StartRoom != (Room{}) {
 					data = nil
 					return nil, fmt.Errorf("duplicate start room instantiation at line %d", lineCount)
 				}
 				data.StartRoom = room
+				data.StartRoom.AntNb = data.AntAmount
 				startNext = false
+
+				for i := range data.AntAmount {
+					data.AntList = append(data.AntList, Ant{
+						Name:          "L" + strconv.Itoa(int(i+1)),
+						OccupyingRoom: &data.StartRoom,
+					})
+				}
 			} else if endNext {
 				if data.EndRoom != (Room{}) {
 					data = nil
@@ -141,6 +156,8 @@ func ParseLeminFile(fname string) (*LeminData, error) {
 				return nil, fmt.Errorf("unknown room '%s' at line %d", vals[1], lineCount)
 			}
 			path.To = *to
+
+			path.Distance = math.Sqrt(float64((to.X-from.X)*(to.X-from.X)) + float64((to.Y-from.Y)*(to.Y-from.Y)))
 
 			data.Paths = append(data.Paths, path)
 		}

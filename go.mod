@@ -1,3 +1,3 @@
-go 1.22.5
+module lemin
 
-module main
+go 1.22.2

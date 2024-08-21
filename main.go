@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"lemin"
+	"lemin/lemin"
 	"os"
 )
 
@@ -12,17 +12,68 @@ func main() {
 		return
 	}
 
-	leminData, errParse := lemin.ParseLeminFile(os.Args[1])
+	leminData, graph, errParse := lemin.ParseLeminFile(os.Args[1])
 	if errParse != nil {
 		fmt.Fprintf(os.Stderr, "ERROR - couldn't parse %s:\n%s\n", os.Args[1], errParse.Error())
 		os.Exit(1)
 	}
 
-	fmt.Print(leminData.FileContent, "\n\n")
+	{
+		dataOk, errMsg := leminData.IsValidData()
+		if !dataOk {
+			fmt.Fprintf(os.Stderr, "ERROR - invalid data structure:\n%s\n", errMsg)
+			os.Exit(1)
+		}
+	}
 
-	err := lemin.Resolve(leminData)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR finding solutions :\n%v\n", err)
-		os.Exit(1)
+	fmt.Println(leminData.FileContent + "\n\nParsed:")
+
+	// for _, rooms := range leminData.Paths {
+	// 	fmt.Printf("Path from %s to %s : distance: %.4f\n", rooms.From.Name, rooms.To.Name, rooms.Distance)
+	// }
+
+	for _, otherRooms := range leminData.OtherRooms {
+		fmt.Printf("Room: %s (%d;%d)\n",
+			otherRooms.Name,
+			otherRooms.X,
+			otherRooms.Y,
+		)
+	}
+
+	fmt.Printf("Amount of ants: %d\nStart room: %v\nEnd room: %v\nCheckpoint rooms:\n%v\n",
+		leminData.AntAmount,
+		leminData.StartRoom.Name,
+		leminData.EndRoom.Name,
+		leminData.OtherRooms,
+	)
+
+	visited := make(map[string]bool)
+	var path []*lemin.Room
+	pathfinder := lemin.PathFinder{}
+
+	lemin.DFS(&leminData.StartRoom, &leminData.EndRoom, visited, path, &pathfinder, graph)
+	count := 1
+	for _, distance := range pathfinder.AllDistancePaths {
+		fmt.Printf("Distance Chemin %d : %.2f\n", count, distance)
+		count++
+	}
+
+	lemin.SortPaths(&pathfinder)
+
+	ants := lemin.CreateAnts(leminData, &leminData.StartRoom)
+
+	for _, ant := range ants {
+		fmt.Printf("Ant name: %s\n", ant.Name)
+	}
+
+	fmt.Printf("Tous les chemins trouvés : %d\n", count-1)
+	count = 1
+	for _, p := range pathfinder.AllPaths {
+		fmt.Printf("Chemin %d: ", count)
+		for _, r := range p {
+			fmt.Printf("%s -> ", r.Name)
+		}
+		fmt.Println("Fin")
+		count++
 	}
 }

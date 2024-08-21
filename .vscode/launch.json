@@ -10,7 +10,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "args": ["examples/ex02.txt"]
+            "args": "exemples/exemple02.txt"
         }
     ]
 }

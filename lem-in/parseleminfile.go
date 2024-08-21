@@ -162,7 +162,7 @@ func ParseLeminFile(fname string) (*LeminData, error) {
 			data.Paths = append(data.Paths, path)
 		}
 
-		data.FileContent += line + "\n"
+		data.FileContent += strconv.Itoa(lineCount) + "\t" + line + "\n"
 	}
 
 	if lineScanner.Err() != nil {

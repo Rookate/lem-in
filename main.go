@@ -18,14 +18,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	{
-		dataOk, errMsg := leminData.IsValidData()
-		if !dataOk {
-			fmt.Fprintf(os.Stderr, "ERROR - invalid data structure:\n%s\n", errMsg)
-			os.Exit(1)
-		}
-	}
+	fmt.Print(leminData.FileContent, "\n\n")
 
-	fmt.Println(leminData.FileContent + "\n\nParsed:")
-	fmt.Printf("Amount of ants: %d\nStart room: %v\nEnd room: %v\nCheckpoint rooms:\n%v\nPaths:\n%v\n", leminData.AntAmount, leminData.StartRoom, leminData.EndRoom, leminData.OtherRooms, leminData.Paths)
+	err := lemin.Resolve(leminData)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR finding solutions :\n%v\n", err)
+		os.Exit(1)
+	}
 }

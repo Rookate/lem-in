@@ -55,6 +55,21 @@ func (lem *LeminData) GetRoomFromName(s string) *Room {
 	return nil
 }
 
+func (r1 *Room) Compare(r2 *Room) bool {
+	return r1.Name == r2.Name &&
+		r1.X == r2.X && r1.Y == r2.Y
+}
+
+func GetTotalDistance(paths []Path) float64 {
+	sum := 0.0
+
+	for _, path := range paths {
+		sum += path.Distance
+	}
+
+	return sum
+}
+
 /*
 Returns whether or not the LeminData object is a valid data structure.
 

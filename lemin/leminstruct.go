@@ -27,6 +27,10 @@ func (lem *LeminData) GetRoomFromName(s string) *Room {
 	return nil
 }
 
+func Compare(r1, r2 *Room) bool {
+	return r1.Name == r2.Name && r1.X == r2.X && r1.Y == r2.Y && r1.Occupied == r2.Occupied
+}
+
 /*
 Returns whether or not the LeminData object is a valid data structure.
 

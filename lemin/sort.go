@@ -21,9 +21,23 @@ func CalculatePathDistance(path []*Room, graph *Graph) float64 {
 	return totalDistance
 }
 
-// fonction qui tri toutes les distances de la plus courte à la plus longue
 func SortPaths(pathFinder *PathFinder) {
-	sort.Slice(pathFinder.AllDistancePaths, func(i, j int) bool {
-		return pathFinder.AllDistancePaths[i] < pathFinder.AllDistancePaths[j]
+	indices := make([]int, len(pathFinder.AllDistancePaths))
+	for i := range indices {
+		indices[i] = i
+	}
+
+	sort.Slice(indices, func(i, j int) bool {
+		return pathFinder.AllDistancePaths[indices[i]] < pathFinder.AllDistancePaths[indices[j]]
 	})
+
+	sortedPaths := make([][]*Room, len(pathFinder.AllPaths))
+	sortedDistances := make([]float64, len(pathFinder.AllDistancePaths))
+
+	for i, index := range indices {
+		sortedPaths[i] = pathFinder.AllPaths[index]
+		sortedDistances[i] = pathFinder.AllDistancePaths[index]
+	}
+	pathFinder.AllPaths = sortedPaths
+	pathFinder.AllDistancePaths = sortedDistances
 }

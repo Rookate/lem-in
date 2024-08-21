@@ -1,10 +1,11 @@
 package lemin
 
 type Room struct {
-	AntNb uint
-	Name  string
-	X     int
-	Y     int
+	AntNb    uint
+	Name     string
+	X        int
+	Y        int
+	Occupied bool
 }
 
 type Ant struct {

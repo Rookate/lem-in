@@ -5,6 +5,44 @@ import (
 	"testing"
 )
 
+func TestMoveAnts(t *testing.T) {
+	// Initialisation des salles et chemins
+	startRoom := &Room{Name: "Start", Occupied: true}
+	endRoom := &Room{Name: "End", Occupied: false}
+	midRoom1 := &Room{Name: "Mid1", Occupied: false}
+	midRoom2 := &Room{Name: "Mid2", Occupied: false}
+
+	paths := [][]*Room{
+		{startRoom, midRoom1, endRoom},
+		{startRoom, midRoom2, endRoom},
+	}
+
+	// Initialisation des fourmis
+	ants := []Ant{
+		{Name: "Ant 1", OccupyingRoom: startRoom},
+		{Name: "Ant 2", OccupyingRoom: startRoom},
+	}
+
+	antCount := &LeminData{AntAmount: 2}
+	pathFinder := &PathFinder{AllPaths: paths}
+
+	// Appel de la fonction à tester
+	MoveAnts(pathFinder, antCount, ants)
+
+	// Vérification du résultat attendu
+	if ants[0].OccupyingRoom != endRoom {
+		t.Errorf("Ant 1 should be in the End room, but is in %s", ants[0].OccupyingRoom.Name)
+	}
+
+	if ants[1].OccupyingRoom != endRoom {
+		t.Errorf("Ant 2 should be in the End room, but is in %s", ants[1].OccupyingRoom.Name)
+	}
+
+	if !endRoom.Occupied {
+		t.Errorf("End room should be occupied, but it is not")
+	}
+}
+
 func TestCreateAnts(t *testing.T) {
 	// Setup des données de test
 	startRoom := &Room{Name: "StartRoom", X: 0, Y: 0}

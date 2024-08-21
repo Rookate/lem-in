@@ -26,26 +26,26 @@ func main() {
 		}
 	}
 
-	fmt.Println(leminData.FileContent + "\n\nParsed:")
+	// fmt.Println(leminData.FileContent + "\n\nParsed:")
 
 	// for _, rooms := range leminData.Paths {
 	// 	fmt.Printf("Path from %s to %s : distance: %.4f\n", rooms.From.Name, rooms.To.Name, rooms.Distance)
 	// }
 
-	for _, otherRooms := range leminData.OtherRooms {
-		fmt.Printf("Room: %s (%d;%d)\n",
-			otherRooms.Name,
-			otherRooms.X,
-			otherRooms.Y,
-		)
-	}
+	// for _, otherRooms := range leminData.OtherRooms {
+	// 	fmt.Printf("Room: %s (%d;%d)\n",
+	// 		otherRooms.Name,
+	// 		otherRooms.X,
+	// 		otherRooms.Y,
+	// 	)
+	// }
 
-	fmt.Printf("Amount of ants: %d\nStart room: %v\nEnd room: %v\nCheckpoint rooms:\n%v\n",
-		leminData.AntAmount,
-		leminData.StartRoom.Name,
-		leminData.EndRoom.Name,
-		leminData.OtherRooms,
-	)
+	// fmt.Printf("Amount of ants: %d\nStart room: %v\nEnd room: %v\nCheckpoint rooms:\n%v\n",
+	// 	leminData.AntAmount,
+	// 	leminData.StartRoom.Name,
+	// 	leminData.EndRoom.Name,
+	// 	leminData.OtherRooms,
+	// )
 
 	visited := make(map[string]bool)
 	var path []*lemin.Room
@@ -53,8 +53,7 @@ func main() {
 
 	lemin.DFS(&leminData.StartRoom, &leminData.EndRoom, visited, path, &pathfinder, graph)
 	count := 1
-	for _, distance := range pathfinder.AllDistancePaths {
-		fmt.Printf("Distance Chemin %d : %.2f\n", count, distance)
+	for range pathfinder.AllDistancePaths {
 		count++
 	}
 
@@ -62,18 +61,20 @@ func main() {
 
 	ants := lemin.CreateAnts(leminData, &leminData.StartRoom)
 
-	for _, ant := range ants {
-		fmt.Printf("Ant name: %s\n", ant.Name)
-	}
+	lemin.MoveAnts(&pathfinder, leminData, ants)
 
-	fmt.Printf("Tous les chemins trouvés : %d\n", count-1)
-	count = 1
-	for _, p := range pathfinder.AllPaths {
-		fmt.Printf("Chemin %d: ", count)
-		for _, r := range p {
-			fmt.Printf("%s -> ", r.Name)
-		}
-		fmt.Println("Fin")
-		count++
-	}
+	// for _, ant := range ants {
+	// 	fmt.Printf("Ant name: %s\n", ant.Name)
+	// }
+
+	// fmt.Printf("Tous les chemins trouvés : %d\n", count-1)
+	// count = 1
+	// for _, p := range pathfinder.AllPaths {
+	// 	fmt.Printf("Chemin %d: ", count)
+	// 	for _, r := range p {
+	// 		fmt.Printf("%s -> ", r.Name)
+	// 	}
+	// 	fmt.Println("Fin")
+	// 	count++
+	// }
 }

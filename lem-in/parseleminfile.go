@@ -2,8 +2,8 @@ package lemin
 
 import (
 	"bufio"
-	"common"
 	"fmt"
+	"lemin/common"
 	"math"
 	"os"
 	"strconv"

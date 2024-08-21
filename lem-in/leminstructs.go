@@ -1,8 +1,8 @@
 package lemin
 
 import (
-	"common"
 	"fmt"
+	"lemin/common"
 )
 
 type Room struct {

@@ -118,11 +118,10 @@ func MoveAnts(pathfinder *PathFinder, data *LeminData) {
 	endRoomCooldown := make(map[int]int) // Map to track the cooldown for each path
 	var nextRoom *Room
 	hasArrived := 0
-	count := 0
+	instCount := 0
 	turnCount := 0
 
 	for {
-		allAntsAtEnd := true
 		var moves []string
 
 		for i := 0; i < int(data.AntAmount); i++ {
@@ -161,7 +160,7 @@ func MoveAnts(pathfinder *PathFinder, data *LeminData) {
 
 							moves = append(moves, fmt.Sprintf("%s-%s", ant.Name, nextRoom.Name))
 							moveMade = true
-							count++
+							instCount++
 							break
 						}
 					}
@@ -171,10 +170,6 @@ func MoveAnts(pathfinder *PathFinder, data *LeminData) {
 				}
 				if moveMade {
 					break
-				}
-
-				if ant.OccupyingRoom != &data.EndRoom {
-					allAntsAtEnd = false
 				}
 			}
 		}
@@ -193,14 +188,14 @@ func MoveAnts(pathfinder *PathFinder, data *LeminData) {
 		}
 		fmt.Println()
 
-		if allAntsAtEnd || hasArrived == int(data.AntAmount) {
+		if hasArrived == int(data.AntAmount) {
 			break
 		}
 
 		// Reset the occupiedRoom map at the end of each turn
 		occupiedRoom = make(map[*Room]bool)
 	}
-	fmt.Printf("Number of instructions: %d\nNumber of Turns: %d\n", count, turnCount)
+	fmt.Printf("Number of instructions: %d\nNumber of Turns: %d\n", instCount, turnCount)
 }
 
 /*

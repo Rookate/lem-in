@@ -57,9 +57,9 @@ func TestCreateAnts(t *testing.T) {
 	}
 
 	for i, ant := range ants {
-		expectedName := fmt.Sprintf("Ant %d", i+1)
+		expectedName := fmt.Sprintf("L%d", i+1)
 		if ant.Name != expectedName {
-			t.Errorf("Ant %d: Expected name %s, but got %s", i, expectedName, ant.Name)
+			t.Errorf("L%d: Expected name %s, but got %s", i, expectedName, ant.Name)
 		}
 		if ant.OccupyingRoom != startRoom {
 			t.Errorf("Ant %d: Expected occupying room %v, but got %v", i, startRoom, ant.OccupyingRoom)

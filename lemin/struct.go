@@ -12,7 +12,6 @@ type Ant struct {
 	Name          string
 	Position      int
 	Path          []*Room
-	HasArrived    bool
 	OccupyingRoom *Room
 }
 

@@ -23,11 +23,17 @@ func TestMoveAnts(t *testing.T) {
 		{Name: "Ant 2", OccupyingRoom: startRoom},
 	}
 
-	antCount := &LeminData{AntAmount: 2}
+	data := LeminData{
+		AntAmount:  2,
+		AntList:    ants,
+		StartRoom:  *startRoom,
+		EndRoom:    *endRoom,
+		OtherRooms: []Room{*midRoom1, *midRoom2},
+	}
 	pathFinder := &PathFinder{AllPaths: paths}
 
 	// Appel de la fonction à tester
-	MoveAnts(pathFinder, antCount, ants)
+	MoveAnts(pathFinder, &data)
 
 	// Vérification du résultat attendu
 	if ants[0].OccupyingRoom != endRoom {
@@ -46,23 +52,26 @@ func TestMoveAnts(t *testing.T) {
 func TestCreateAnts(t *testing.T) {
 	// Setup des données de test
 	startRoom := &Room{Name: "StartRoom", X: 0, Y: 0}
-	antCount := &LeminData{AntAmount: 3} // Créons 3 fourmis
-
-	// Appel de la fonction à tester
-	ants := CreateAnts(antCount, startRoom)
-
-	// Vérifications
-	if len(ants) != 3 {
-		t.Fatalf("Expected 3 ants, but got %d", len(ants))
+	data := &LeminData{
+		AntAmount: 3,
+		StartRoom: *startRoom,
 	}
 
-	for i, ant := range ants {
+	// Appel de la fonction à tester
+	data.CreateAnts()
+
+	// Vérifications
+	if len(data.AntList) != 3 {
+		t.Fatalf("Expected 3 ants, but got %d", len(data.AntList))
+	}
+
+	for i, ant := range data.AntList {
 		expectedName := fmt.Sprintf("L%d", i+1)
 		if ant.Name != expectedName {
 			t.Errorf("L%d: Expected name %s, but got %s", i, expectedName, ant.Name)
 		}
-		if ant.OccupyingRoom != startRoom {
-			t.Errorf("Ant %d: Expected occupying room %v, but got %v", i, startRoom, ant.OccupyingRoom)
+		if *ant.OccupyingRoom != *startRoom {
+			t.Errorf("Ant %d: Expected occupying room %v, but got %v", i+1, startRoom, ant.OccupyingRoom)
 		}
 	}
 }

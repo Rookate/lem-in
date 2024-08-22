@@ -2,21 +2,17 @@ package lemin
 
 import "fmt"
 
-func CreateAnts(antCount *LeminData, startRoom *Room) []Ant {
-
-	var ants []Ant
-
-	for i := 0; i < int(antCount.AntAmount); i++ {
+func (data *LeminData) CreateAnts() {
+	for i := 0; i < int(data.AntAmount); i++ {
 		ant := Ant{
 			Name:          fmt.Sprintf("L%d", i+1),
-			OccupyingRoom: startRoom,
+			OccupyingRoom: &data.StartRoom,
 		}
-		ants = append(ants, ant)
+		data.AntList = append(data.AntList, ant)
 	}
-	return ants
 }
 
-func MoveAntss(pathfinder *PathFinder, antCount *LeminData, ants []Ant) {
+func MoveAntss(pathfinder *PathFinder, data *LeminData, ants []Ant) {
 	occupiedRoom := make(map[*Room]bool)
 	endRoomCooldown := make(map[int]bool)
 	antsOnPath := make([]int, len(pathfinder.AllPaths))
@@ -28,10 +24,10 @@ func MoveAntss(pathfinder *PathFinder, antCount *LeminData, ants []Ant) {
 		allAntsAtEnd := true
 		var moves []string
 
-		for i := 0; i < int(antCount.AntAmount); i++ {
+		for i := 0; i < int(data.AntAmount); i++ {
 			ant := &ants[i]
 
-			if ant.OccupyingRoom == &antCount.EndRoom {
+			if ant.OccupyingRoom == &data.EndRoom {
 				continue
 			}
 
@@ -39,7 +35,7 @@ func MoveAntss(pathfinder *PathFinder, antCount *LeminData, ants []Ant) {
 			currentRoom := ant.OccupyingRoom
 
 			// Trouver le meilleur chemin pour cette fourmi
-			bestPathIndex := FindBestPath(pathfinder, antCount, antsOnPath)
+			bestPathIndex := FindBestPath(pathfinder, data, antsOnPath)
 			bestPath := pathfinder.AllPaths[bestPathIndex]
 
 			for j := 0; j < len(bestPath)-1; j++ {
@@ -47,7 +43,7 @@ func MoveAntss(pathfinder *PathFinder, antCount *LeminData, ants []Ant) {
 					nextRoom = bestPath[j+1]
 
 					// Vérifier si la salle suivante est la EndRoom et si elle est en cooldown
-					if nextRoom == &antCount.EndRoom && endRoomCooldown[bestPathIndex] {
+					if nextRoom == &data.EndRoom && endRoomCooldown[bestPathIndex] {
 						continue
 					}
 
@@ -56,7 +52,7 @@ func MoveAntss(pathfinder *PathFinder, antCount *LeminData, ants []Ant) {
 						ant.OccupyingRoom = nextRoom
 
 						// Définir le cooldown si la salle suivante est la EndRoom
-						if ant.OccupyingRoom == &antCount.EndRoom {
+						if ant.OccupyingRoom == &data.EndRoom {
 							endRoomCooldown[bestPathIndex] = true
 						} else {
 							ant.OccupyingRoom.Occupied = true
@@ -101,7 +97,7 @@ func MoveAntss(pathfinder *PathFinder, antCount *LeminData, ants []Ant) {
 	fmt.Printf("Number of instructions: %d\nNumber of Turns: %d\n", count, turnCount)
 }
 
-func FindBestPath(pathfinder *PathFinder, antCount *LeminData, antsOnPath []int) int {
+func FindBestPath(pathfinder *PathFinder, data *LeminData, antsOnPath []int) int {
 	bestPathIndex := 0
 	bestPathScore := float64(len(pathfinder.AllPaths[0])) + float64(antsOnPath[0])
 
@@ -117,7 +113,7 @@ func FindBestPath(pathfinder *PathFinder, antCount *LeminData, antsOnPath []int)
 	return bestPathIndex
 }
 
-func MoveAnts(pathfinder *PathFinder, antCount *LeminData, ants []Ant) {
+func MoveAnts(pathfinder *PathFinder, data *LeminData) {
 	occupiedRoom := make(map[*Room]bool)
 	endRoomCooldown := make(map[int]int) // Map to track the cooldown for each path
 	var nextRoom *Room
@@ -129,10 +125,10 @@ func MoveAnts(pathfinder *PathFinder, antCount *LeminData, ants []Ant) {
 		allAntsAtEnd := true
 		var moves []string
 
-		for i := 0; i < int(antCount.AntAmount); i++ {
-			ant := &ants[i]
+		for i := 0; i < int(data.AntAmount); i++ {
+			ant := &data.AntList[i]
 
-			if ant.OccupyingRoom == &antCount.EndRoom {
+			if ant.OccupyingRoom == &data.EndRoom {
 				continue
 			}
 
@@ -146,7 +142,7 @@ func MoveAnts(pathfinder *PathFinder, antCount *LeminData, ants []Ant) {
 						nextRoom = path[j+1]
 
 						// Check if the nextRoom is the endRoom and if it's available
-						if nextRoom == &antCount.EndRoom && endRoomCooldown[pathIndex] > 0 {
+						if nextRoom == &data.EndRoom && endRoomCooldown[pathIndex] > 0 {
 							continue
 						}
 
@@ -154,7 +150,7 @@ func MoveAnts(pathfinder *PathFinder, antCount *LeminData, ants []Ant) {
 							ant.OccupyingRoom.Occupied = false
 							ant.OccupyingRoom = nextRoom
 
-							if ant.OccupyingRoom == &antCount.EndRoom {
+							if ant.OccupyingRoom == &data.EndRoom {
 								hasArrived++
 								// Set cooldown for the endRoom for this path
 								endRoomCooldown[pathIndex] = 1
@@ -177,7 +173,7 @@ func MoveAnts(pathfinder *PathFinder, antCount *LeminData, ants []Ant) {
 					break
 				}
 
-				if ant.OccupyingRoom != &antCount.EndRoom {
+				if ant.OccupyingRoom != &data.EndRoom {
 					allAntsAtEnd = false
 				}
 			}
@@ -197,7 +193,7 @@ func MoveAnts(pathfinder *PathFinder, antCount *LeminData, ants []Ant) {
 		}
 		fmt.Println()
 
-		if allAntsAtEnd || hasArrived == int(antCount.AntAmount) {
+		if allAntsAtEnd || hasArrived == int(data.AntAmount) {
 			break
 		}
 

@@ -52,16 +52,16 @@ func main() {
 	pathfinder := lemin.PathFinder{}
 
 	lemin.DFS(&leminData.StartRoom, &leminData.EndRoom, visited, path, &pathfinder, graph)
-	count := 1
-	for range pathfinder.AllDistancePaths {
-		count++
-	}
+	// count := 1
+	// for range pathfinder.AllDistancePaths {
+	// 	count++
+	// }
 
 	lemin.SortPaths(&pathfinder)
 
-	ants := lemin.CreateAnts(leminData, &leminData.StartRoom)
+	leminData.CreateAnts()
 
-	lemin.MoveAnts(&pathfinder, leminData, ants)
+	lemin.MoveAnts(&pathfinder, leminData)
 
 	// for _, ant := range ants {
 	// 	fmt.Printf("Ant name: %s\n", ant.Name)

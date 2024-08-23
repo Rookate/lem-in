@@ -14,12 +14,12 @@ func TestMoveAnts(t *testing.T) {
 	roomE := &Room{Name: "4"}
 
 	// Création des connexions
-	connAB := Connection{From: roomA, To: roomB, Distance: 1}
-	connAD := Connection{From: roomA, To: roomD, Distance: 1}
-	connBC := Connection{From: roomB, To: roomC, Distance: 1}
-	connDC := Connection{From: roomD, To: roomC, Distance: 1}
-	connAE := Connection{From: roomA, To: roomE, Distance: 1}
-	connED := Connection{From: roomE, To: roomD, Distance: 1}
+	connAB := Tunnel{From: roomA, To: roomB, Distance: 1}
+	connAD := Tunnel{From: roomA, To: roomD, Distance: 1}
+	connBC := Tunnel{From: roomB, To: roomC, Distance: 1}
+	connDC := Tunnel{From: roomD, To: roomC, Distance: 1}
+	connAE := Tunnel{From: roomA, To: roomE, Distance: 1}
+	connED := Tunnel{From: roomE, To: roomD, Distance: 1}
 
 	// Création des chemins pour PathFinder
 	allPaths := [][]*Room{
@@ -44,17 +44,16 @@ func TestMoveAnts(t *testing.T) {
 
 	// Initialisation des données
 	data := &LeminData{
-		AntList:        ants,
-		StartRoom:      *roomA,
-		EndRoom:        *roomD,
-		OtherRooms:     []Room{*roomB, *roomC, *roomE},
-		ConnectionList: []Connection{connAB, connAD, connBC, connDC, connAE, connED},
+		AntList:    ants,
+		StartRoom:  *roomA,
+		EndRoom:    *roomD,
+		OtherRooms: []Room{*roomB, *roomC, *roomE},
+		TunnelList: []Tunnel{connAB, connAD, connBC, connDC, connAE, connED},
 	}
 
 	// Appel de la fonction à tester avec une limite de 20 tours
 	SortPaths(pathFinder)
-	const maxTurns = 20
-	MoveAnts(pathFinder, data, maxTurns)
+	MoveAnts(pathFinder, data)
 
 	// Vérification que toutes les fourmis ont atteint la salle de fin
 	for _, ant := range data.AntList {
@@ -75,7 +74,7 @@ func TestGetTunnel(t *testing.T) {
 	roomC := &Room{Name: "C"}
 
 	data := &LeminData{
-		ConnectionList: []Connection{
+		TunnelList: []Tunnel{
 			{From: roomA, To: roomB},
 			{From: roomB, To: roomC},
 		},
@@ -121,17 +120,17 @@ func TestDFS(t *testing.T) {
 	roomE := &Room{Name: "4"}
 
 	// Création des connexions
-	connAB := Connection{From: roomA, To: roomB, Distance: 1}
-	connAD := Connection{From: roomA, To: roomD, Distance: 1}
-	connBC := Connection{From: roomB, To: roomC, Distance: 1}
-	connDC := Connection{From: roomD, To: roomC, Distance: 1}
-	connAE := Connection{From: roomA, To: roomE, Distance: 1}
-	connED := Connection{From: roomE, To: roomD, Distance: 1}
+	connAB := Tunnel{From: roomA, To: roomB, Distance: 1}
+	connAD := Tunnel{From: roomA, To: roomD, Distance: 1}
+	connBC := Tunnel{From: roomB, To: roomC, Distance: 1}
+	connDC := Tunnel{From: roomD, To: roomC, Distance: 1}
+	connAE := Tunnel{From: roomA, To: roomE, Distance: 1}
+	connED := Tunnel{From: roomE, To: roomD, Distance: 1}
 
 	// Initialisation des connexions dans LeminData
 	data := &LeminData{
-		ConnectionList: []Connection{connAB, connAD, connBC, connDC, connAE, connED},
-		EndRoom:        *roomD,
+		TunnelList: []Tunnel{connAB, connAD, connBC, connDC, connAE, connED},
+		EndRoom:    *roomD,
 	}
 
 	// Initialisation du PathFinder et appel DFS
@@ -194,14 +193,14 @@ func TestGetNeighbors(t *testing.T) {
 	room3 := &Room{Name: "3"}
 
 	// Création des connexions pour le test
-	conn01 := Connection{From: room0, To: room1, Distance: 1.0}
-	conn02 := Connection{From: room1, To: room2, Distance: 1.0}
-	conn03 := Connection{From: room0, To: room3, Distance: 2.0}
-	conn04 := Connection{From: room2, To: room3, Distance: 1.0}
+	conn01 := Tunnel{From: room0, To: room1, Distance: 1.0}
+	conn02 := Tunnel{From: room1, To: room2, Distance: 1.0}
+	conn03 := Tunnel{From: room0, To: room3, Distance: 2.0}
+	conn04 := Tunnel{From: room2, To: room3, Distance: 1.0}
 
 	// Initialisation des données de test
 	data := LeminData{
-		ConnectionList: []Connection{conn01, conn02, conn03, conn04},
+		TunnelList: []Tunnel{conn01, conn02, conn03, conn04},
 	}
 
 	// Fonction pour tester les voisins

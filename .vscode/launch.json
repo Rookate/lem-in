@@ -10,7 +10,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "args": "exemples/exemple02.txt"
+            "args": "exemples/exemple03.txt"
         }
     ]
 }

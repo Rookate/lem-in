@@ -8,30 +8,28 @@ type Room struct {
 	Occupied bool
 }
 
+// Structure où on va stocker la connection entre deux rooms + la distance entre elles
+type Tunnel struct {
+	From     *Room
+	To       *Room
+	Distance float64
+}
+
 type Ant struct {
 	Name          string
-	Position      int
-	Path          []*Room
 	OccupyingRoom *Room
 }
 
 type LeminData struct {
-	FileContent    string // Content of the read file saved per project requirements
-	AntList        []Ant
-	StartRoom      Room   // Room where all the ants start into
-	EndRoom        Room   // Room where ants must finish
-	OtherRooms     []Room // Array of checkpoint rooms
-	ConnectionList []Connection
+	FileContent string // Content of the read file saved per project requirements
+	AntList     []Ant
+	StartRoom   Room   // Room where all the ants start into
+	EndRoom     Room   // Room where ants must finish
+	OtherRooms  []Room // Array of checkpoint rooms
+	TunnelList  []Tunnel
 }
 
 type PathFinder struct {
 	AllPaths         [][]*Room
 	AllDistancePaths []float64
-}
-
-// Structure où on va stocker la connection entre deux rooms + la distance entre elles
-type Connection struct {
-	From     *Room
-	To       *Room
-	Distance float64
 }

@@ -55,8 +55,6 @@ func main() {
 
 	lemin.SortPaths(&pathfinder)
 
-	maxTurns := 18
-
 	// for _, ant := range ants {
 	// 	fmt.Printf("Ant name: %s\n", ant.Name)
 	// }
@@ -76,5 +74,5 @@ func main() {
 	// 	fmt.Println("Fin")
 	// 	count++
 	// }
-	lemin.MoveAnts(&pathfinder, leminData, maxTurns)
+	lemin.MoveAnts(&pathfinder, leminData)
 }

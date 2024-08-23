@@ -153,7 +153,7 @@ func ParseLeminFile(fname string) (*LeminData, error) {
 			distance := math.Sqrt(float64((to.X-from.X)*(to.X-from.X)) + float64((to.Y-from.Y)*(to.Y-from.Y)))
 
 			//graph.AddEdge(from, to)
-			data.ConnectionList = append(data.ConnectionList, Connection{
+			data.TunnelList = append(data.TunnelList, Tunnel{
 				From:     from,
 				To:       to,
 				Distance: distance,

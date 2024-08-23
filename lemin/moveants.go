@@ -2,10 +2,9 @@ package lemin
 
 import "fmt"
 
-func MoveAntss(pathfinder *PathFinder, data *LeminData, ants []Ant) {
+/* func MoveAntss(pathfinder *PathFinder, data *LeminData, ants []Ant) {
 	occupiedRoom := make(map[*Room]bool)
 	endRoomCooldown := make(map[int]bool)
-	antsOnPath := make([]int, len(pathfinder.AllPaths))
 	var nextRoom *Room
 	count := 0
 	turnCount := 0
@@ -25,7 +24,7 @@ func MoveAntss(pathfinder *PathFinder, data *LeminData, ants []Ant) {
 			currentRoom := ant.OccupyingRoom
 
 			// Trouver le meilleur chemin pour cette fourmi
-			bestPathIndex := FindBestPath(pathfinder, data, antsOnPath)
+			bestPathIndex := data.NextBestMove(pathfinder, currentRoom)
 			bestPath := pathfinder.AllPaths[bestPathIndex]
 
 			for j := 0; j < len(bestPath)-1; j++ {
@@ -85,21 +84,29 @@ func MoveAntss(pathfinder *PathFinder, data *LeminData, ants []Ant) {
 		occupiedRoom = make(map[*Room]bool)
 	}
 	fmt.Printf("Number of instructions: %d\nNumber of Turns: %d\n", count, turnCount)
-}
+} */
 
-func FindBestPath(pathfinder *PathFinder, data *LeminData, antsOnPath []int) int {
-	bestPathIndex := 0
-	bestPathScore := float64(len(pathfinder.AllPaths[0])) + float64(antsOnPath[0])
+func (data *LeminData) NextBestMove(pathfinder *PathFinder, currentRoom *Room) *Room {
+	if currentRoom == nil || pathfinder == nil {
+		return nil
+	}
 
-	for i := 1; i < len(pathfinder.AllPaths); i++ {
-		currentPathScore := float64(len(pathfinder.AllPaths[i])) + float64(antsOnPath[i])
-		if currentPathScore < bestPathScore {
-			bestPathScore = currentPathScore
-			bestPathIndex = i
+	for _, path := range pathfinder.AllPaths {
+		for i := range path {
+
+			if *path[i] == *currentRoom {
+				if data.GetRoomIndexFromName(path[i+1].Name) == -2 {
+					return &data.EndRoom
+				}
+
+				if !data.OtherRooms[data.GetRoomIndexFromName(path[i+1].Name)].Occupied {
+					return path[i+1]
+				}
+			}
 		}
 	}
 
-	return bestPathIndex
+	return currentRoom
 }
 
 func MoveAntsss(pathfinder *PathFinder, data *LeminData) {

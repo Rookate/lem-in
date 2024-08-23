@@ -4,7 +4,7 @@ import (
 	"sort"
 )
 
-func (data *LeminData) CalculateDistanceTunnels(path []*Connection) float64 {
+func (data *LeminData) CalculateDistanceTunnels(path []*Tunnel) float64 {
 	totalDistance := 0.0
 
 	for _, tunnel := range path {
@@ -18,7 +18,7 @@ func (data *LeminData) CalculateDistanceRooms(path []*Room) float64 {
 	totalDistance := 0.0
 
 	for i := 0; i < len(path)-1; i++ {
-		for _, tunnel := range data.ConnectionList {
+		for _, tunnel := range data.TunnelList {
 			if (*tunnel.From == *path[i] && *tunnel.To == *path[i+1]) || (*tunnel.To == *path[i] && *tunnel.From == *path[i+1]) {
 				totalDistance += tunnel.Distance
 				break

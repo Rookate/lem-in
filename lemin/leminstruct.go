@@ -27,12 +27,43 @@ func (lem *LeminData) GetRoomFromName(s string) *Room {
 	return nil
 }
 
+/*
+-3 == Error
+
+-2 == EndRoom
+
+-1 == StartRoom
+
+Else == Room figuring in data.OtherRooms
+*/
+func (data *LeminData) GetRoomIndexFromName(name string) int {
+	if name == "" {
+		return -3
+	}
+
+	if *data.GetRoomFromName(name) == data.StartRoom {
+		return -1
+	}
+
+	if *data.GetRoomFromName(name) == data.EndRoom {
+		return -2
+	}
+
+	for i := range data.OtherRooms {
+		if data.OtherRooms[i].Name == name {
+			return i
+		}
+	}
+
+	return -3
+}
+
 func Compare(r1, r2 *Room) bool {
 	return r1.Name == r2.Name && r1.X == r2.X && r1.Y == r2.Y && r1.Occupied == r2.Occupied
 }
 
-func (data *LeminData) GetTunnel(from *Room, to *Room) *Connection {
-	for _, connection := range data.ConnectionList {
+func (data *LeminData) GetTunnel(from *Room, to *Room) *Tunnel {
+	for _, connection := range data.TunnelList {
 		if (connection.From.Name == from.Name && connection.To.Name == to.Name) || (connection.From.Name == to.Name && connection.To.Name == from.Name) {
 			return &connection
 		}
@@ -43,10 +74,10 @@ func (data *LeminData) GetTunnel(from *Room, to *Room) *Connection {
 func (data *LeminData) GetNeighbors(room *Room) []*Room {
 	neighbors := make([]*Room, 0)
 
-	for _, tunnel := range data.ConnectionList {
-		if tunnel.From.Name == room.Name {
+	for _, tunnel := range data.TunnelList {
+		if *tunnel.From == *room && *tunnel.To != data.StartRoom {
 			neighbors = append(neighbors, tunnel.To)
-		} else if tunnel.To.Name == room.Name {
+		} else if *tunnel.To == *room && *tunnel.From != data.StartRoom {
 			neighbors = append(neighbors, tunnel.From)
 		}
 	}
@@ -110,7 +141,7 @@ func (lem *LeminData) IsValidData() (bool, string) {
 		}
 	}
 
-	for _, path1 := range lem.ConnectionList {
+	for _, path1 := range lem.TunnelList {
 		if path1.From == path1.To {
 			return false, "paths cannot link a room to itself"
 		}

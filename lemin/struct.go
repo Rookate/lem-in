@@ -29,11 +29,6 @@ type PathFinder struct {
 	AllDistancePaths []float64
 }
 
-type Graph struct {
-	Rooms map[string]*Room
-	Edges map[string][]Connection
-}
-
 // Structure où on va stocker la connection entre deux rooms + la distance entre elles
 type Connection struct {
 	From     *Room

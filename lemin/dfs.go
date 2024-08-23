@@ -1,13 +1,13 @@
 package lemin
 
-func DFS(currentRoom *Room, endRoom *Room, visited map[string]bool, path []*Room, pathFinder *PathFinder, graph *Graph) {
+func DFS(data *LeminData, currentRoom *Room, visited map[string]bool, path []*Room, pathFinder *PathFinder) {
 	visited[currentRoom.Name] = true
 	path = append(path, currentRoom)
 
-	if currentRoom != endRoom {
-		for _, neighbor := range graph.GetNeighbors(currentRoom) {
-			if !visited[neighbor.To.Name] {
-				DFS(neighbor.To, endRoom, visited, path, pathFinder, graph)
+	if currentRoom != &data.EndRoom {
+		for _, neighbor := range data.GetNeighbors(currentRoom) {
+			if !visited[neighbor.Name] {
+				DFS(data, neighbor, visited, path, pathFinder)
 			}
 		}
 	} else {
@@ -17,7 +17,7 @@ func DFS(currentRoom *Room, endRoom *Room, visited map[string]bool, path []*Room
 			pathFinder.AllPaths = append(pathFinder.AllPaths, copiedPath)
 		}
 
-		totalDistance := CalculatePathDistance(copiedPath, graph)
+		totalDistance := data.CalculateDistanceRooms(copiedPath)
 		pathFinder.AllDistancePaths = append(pathFinder.AllDistancePaths, totalDistance)
 	}
 

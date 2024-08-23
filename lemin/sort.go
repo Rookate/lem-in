@@ -1,18 +1,26 @@
 package lemin
 
-import "sort"
+import (
+	"sort"
+)
 
-func CalculatePathDistance(path []*Room, graph *Graph) float64 {
+func (data *LeminData) CalculateDistanceTunnels(path []*Connection) float64 {
+	totalDistance := 0.0
+
+	for _, tunnel := range path {
+		totalDistance += tunnel.Distance
+	}
+
+	return totalDistance
+}
+
+func (data *LeminData) CalculateDistanceRooms(path []*Room) float64 {
 	totalDistance := 0.0
 
 	for i := 0; i < len(path)-1; i++ {
-		from := path[i]
-		to := path[i+1]
-
-		// Cherche la distance dans les connexions de la salle actuelle
-		for _, conn := range graph.GetNeighbors(from) {
-			if conn.To == to {
-				totalDistance += conn.Distance
+		for _, tunnel := range data.ConnectionList {
+			if (*tunnel.From == *path[i] && *tunnel.To == *path[i+1]) || (*tunnel.To == *path[i] && *tunnel.From == *path[i+1]) {
+				totalDistance += tunnel.Distance
 				break
 			}
 		}

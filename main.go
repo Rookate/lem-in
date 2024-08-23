@@ -12,7 +12,7 @@ func main() {
 		return
 	}
 
-	leminData, graph, errParse := lemin.ParseLeminFile(os.Args[1])
+	leminData, errParse := lemin.ParseLeminFile(os.Args[1])
 	if errParse != nil {
 		fmt.Fprintf(os.Stderr, "ERROR - couldn't parse %s:\n%s\n", os.Args[1], errParse.Error())
 		os.Exit(1)
@@ -51,7 +51,7 @@ func main() {
 	var path []*lemin.Room
 	pathfinder := lemin.PathFinder{}
 
-	lemin.DFS(&leminData.StartRoom, &leminData.EndRoom, visited, path, &pathfinder, graph)
+	lemin.DFS(leminData, &leminData.StartRoom, visited, path, &pathfinder)
 	// count := 1
 	// for range pathfinder.AllDistancePaths {
 	// 	count++
@@ -59,9 +59,9 @@ func main() {
 
 	lemin.SortPaths(&pathfinder)
 
-	leminData.CreateAnts()
+	maxTurns := 10
 
-	lemin.MoveAnts(&pathfinder, leminData)
+	lemin.MoveAnts(&pathfinder, leminData, maxTurns)
 
 	// for _, ant := range ants {
 	// 	fmt.Printf("Ant name: %s\n", ant.Name)

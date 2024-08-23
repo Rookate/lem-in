@@ -2,16 +2,6 @@ package lemin
 
 import "fmt"
 
-func (data *LeminData) CreateAnts() {
-	for i := 0; i < int(data.AntAmount); i++ {
-		ant := Ant{
-			Name:          fmt.Sprintf("L%d", i+1),
-			OccupyingRoom: &data.StartRoom,
-		}
-		data.AntList = append(data.AntList, ant)
-	}
-}
-
 func MoveAntss(pathfinder *PathFinder, data *LeminData, ants []Ant) {
 	occupiedRoom := make(map[*Room]bool)
 	endRoomCooldown := make(map[int]bool)
@@ -24,7 +14,7 @@ func MoveAntss(pathfinder *PathFinder, data *LeminData, ants []Ant) {
 		allAntsAtEnd := true
 		var moves []string
 
-		for i := 0; i < int(data.AntAmount); i++ {
+		for i := 0; i < len(data.AntList); i++ {
 			ant := &ants[i]
 
 			if ant.OccupyingRoom == &data.EndRoom {
@@ -107,13 +97,12 @@ func FindBestPath(pathfinder *PathFinder, data *LeminData, antsOnPath []int) int
 			bestPathScore = currentPathScore
 			bestPathIndex = i
 		}
-		fmt.Println()
 	}
 
 	return bestPathIndex
 }
 
-func MoveAnts(pathfinder *PathFinder, data *LeminData) {
+func MoveAntsss(pathfinder *PathFinder, data *LeminData) {
 	occupiedRoom := make(map[*Room]bool)
 	endRoomCooldown := make(map[int]int) // Map to track the cooldown for each path
 	var nextRoom *Room
@@ -124,7 +113,7 @@ func MoveAnts(pathfinder *PathFinder, data *LeminData) {
 	for {
 		var moves []string
 
-		for i := 0; i < int(data.AntAmount); i++ {
+		for i := 0; i < len(data.AntList); i++ {
 			ant := &data.AntList[i]
 
 			if ant.OccupyingRoom == &data.EndRoom {
@@ -188,7 +177,7 @@ func MoveAnts(pathfinder *PathFinder, data *LeminData) {
 		}
 		fmt.Println()
 
-		if hasArrived == int(data.AntAmount) {
+		if hasArrived == len(data.AntList) {
 			break
 		}
 
@@ -207,5 +196,6 @@ func MoveAnts(pathfinder *PathFinder, data *LeminData) {
 
 
 	First idea : Get the Best path for each ant then move them.
-	 -
+	 - Get Start Room then decrement the number of ant when then leave start Room
+	 - Savoir si la fourmi quitte la room de départ
 */

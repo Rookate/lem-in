@@ -31,6 +31,31 @@ func Compare(r1, r2 *Room) bool {
 	return r1.Name == r2.Name && r1.X == r2.X && r1.Y == r2.Y && r1.Occupied == r2.Occupied
 }
 
+func (data *LeminData) GetTunnel(r1, r2 *Room) *Connection {
+	for _, tunnel := range data.ConnectionList {
+		if (tunnel.From == r1 && tunnel.To == r2) || (tunnel.To == r1 && tunnel.From == r2) {
+			fmt.Printf("Found tunnel between %s and %s\n", r1.Name, r2.Name)
+			return &tunnel
+		}
+	}
+	fmt.Printf("No tunnel found between %s and %s\n", r1.Name, r2.Name)
+	return nil
+}
+
+func (data *LeminData) GetNeighbors(room *Room) []*Room {
+	neighbors := make([]*Room, 0)
+
+	for _, tunnel := range data.ConnectionList {
+		if tunnel.From == room {
+			neighbors = append(neighbors, tunnel.To)
+		} else if tunnel.To == room {
+			neighbors = append(neighbors, tunnel.From)
+		}
+	}
+
+	return neighbors
+}
+
 /*
 Returns whether or not the LeminData object is a valid data structure.
 
@@ -53,7 +78,7 @@ Failing cases are :
 - Any path that is the opposite way of an already existing path.
 */
 func (lem *LeminData) IsValidData() (bool, string) {
-	if lem.AntAmount == 0 {
+	if len(lem.AntList) == 0 {
 		return false, "amount of ants cannot be zero"
 	}
 
@@ -87,8 +112,8 @@ func (lem *LeminData) IsValidData() (bool, string) {
 		}
 	}
 
-	for _, path1 := range lem.Paths {
-		if path1.From.Name == path1.To.Name {
+	for _, path1 := range lem.ConnectionList {
+		if path1.From == path1.To {
 			return false, "paths cannot link a room to itself"
 		}
 
@@ -98,13 +123,6 @@ func (lem *LeminData) IsValidData() (bool, string) {
 
 		if common.IndexOf(names, path1.To.Name) == -1 {
 			return false, fmt.Sprintf("unknown room '%s' in path '%s-%s'", path1.To.Name, path1.From.Name, path1.To.Name)
-		}
-
-		// Searching for eventual bidirectional paths
-		for _, path2 := range lem.Paths {
-			if path1.From.Name == path2.To.Name && path1.To.Name == path2.From.Name {
-				return false, fmt.Sprintf("path '%s-%s' is the opposite of already existing path '%s-%s'", path2.From.Name, path2.To.Name, path1.From.Name, path1.To.Name)
-			}
 		}
 	}
 

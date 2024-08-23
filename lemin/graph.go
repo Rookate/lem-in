@@ -2,8 +2,16 @@ package lemin
 
 import "math"
 
+/*
+	La structure Graph utilise exclusivement les données déjà présentes dans un objet LeminData.
+*/
+
 // Crée un nouveau graphe
-func NewGraph() *Graph {
+func NewGraph(data *LeminData) *Graph {
+	if data == nil {
+		return nil
+	}
+
 	return &Graph{
 		Rooms: make(map[string]*Room),
 		Edges: make(map[string][]Connection),
@@ -19,8 +27,8 @@ func (g *Graph) AddRoom(room *Room) {
 func (g *Graph) AddEdge(from *Room, to *Room) {
 	distance := math.Sqrt(float64((to.X-from.X)*(to.X-from.X)) + float64((to.Y-from.Y)*(to.Y-from.Y)))
 
-	g.Edges[from.Name] = append(g.Edges[from.Name], Connection{To: to, Distance: distance})
-	g.Edges[to.Name] = append(g.Edges[to.Name], Connection{To: from, Distance: distance})
+	g.Edges[from.Name] = append(g.Edges[from.Name], Connection{From: from, To: to, Distance: distance})
+	g.Edges[to.Name] = append(g.Edges[to.Name], Connection{To: from, From: to, Distance: distance})
 }
 
 // Récupère les voisins d'une salle

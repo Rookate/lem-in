@@ -51,20 +51,19 @@ func main() {
 	var path []*lemin.Room
 	pathfinder := lemin.PathFinder{}
 
-	lemin.DFS(leminData, &leminData.StartRoom, visited, path, &pathfinder)
-	// count := 1
-	// for range pathfinder.AllDistancePaths {
-	// 	count++
-	// }
+	lemin.DFS(leminData, &leminData.StartRoom, &leminData.EndRoom, visited, path, &pathfinder)
 
 	lemin.SortPaths(&pathfinder)
 
-	maxTurns := 10
-
-	lemin.MoveAnts(&pathfinder, leminData, maxTurns)
+	maxTurns := 18
 
 	// for _, ant := range ants {
 	// 	fmt.Printf("Ant name: %s\n", ant.Name)
+	// }
+
+	// count := 1
+	// for range pathfinder.AllDistancePaths {
+	// 	count++
 	// }
 
 	// fmt.Printf("Tous les chemins trouvés : %d\n", count-1)
@@ -77,4 +76,5 @@ func main() {
 	// 	fmt.Println("Fin")
 	// 	count++
 	// }
+	lemin.MoveAnts(&pathfinder, leminData, maxTurns)
 }

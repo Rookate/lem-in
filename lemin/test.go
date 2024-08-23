@@ -4,7 +4,7 @@ import "fmt"
 
 func MoveAnts(pathfinder *PathFinder, data *LeminData, maxTurns int) {
 	occupiedRoom := make(map[*Room]bool)
-	occupiedtunnels := make(map[*Connection]bool)
+	occupiedTunnels := make(map[string]int) // Utilisation de chaînes de caractères comme clés pour les tunnels
 	var nextRoom *Room
 	hasArrived := 0
 	instCount := 0
@@ -12,7 +12,6 @@ func MoveAnts(pathfinder *PathFinder, data *LeminData, maxTurns int) {
 	antsOnPath := make([]int, len(pathfinder.AllPaths))
 
 	for turnCount < maxTurns {
-		fmt.Println("New Turn")
 		var moves []string
 
 		for i := 0; i < len(data.AntList); i++ {
@@ -22,74 +21,52 @@ func MoveAnts(pathfinder *PathFinder, data *LeminData, maxTurns int) {
 				continue
 			}
 
-			moveMade := false
 			var path []*Room
-			var pathIndex int
 
-			if data.StartRoom.AntNb == 1 {
-				pathIndex = FindBestPath(pathfinder, data, antsOnPath)
-				path = pathfinder.AllPaths[pathIndex]
-			} else {
-				pathIndex = i % len(pathfinder.AllPaths)
-				path = pathfinder.AllPaths[pathIndex]
-			}
-
-			fmt.Printf("Ant %s in %s considering path %d\n", ant.Name, ant.OccupyingRoom.Name, pathIndex)
+			// Choix du chemin basé sur l'index de la fourmi
+			pathIndex := i % len(pathfinder.AllPaths)
+			path = pathfinder.AllPaths[pathIndex]
 			currentRoom := ant.OccupyingRoom
-
 			for j := 0; j < len(path)-1; j++ {
 				if path[j] == currentRoom {
 					nextRoom = path[j+1]
 
-					fmt.Printf("Ant %s considering moving to %s\n", ant.Name, nextRoom.Name)
-					// Vérifier si la salle suivante est la salle de fin et si elle est disponible
-					if nextRoom == &data.EndRoom {
-						continue
-					}
-
 					tunnel := data.GetTunnel(currentRoom, nextRoom)
 					if tunnel == nil {
-						fmt.Printf("Tunnel between %s and %s not found!\n", currentRoom.Name, nextRoom.Name)
 						continue
 					}
 
-					if !occupiedRoom[nextRoom] && !occupiedtunnels[tunnel] {
-						fmt.Printf("Ant %s moving from %s to %s\n", ant.Name, currentRoom.Name, nextRoom.Name)
+					// Création de la clé pour le tunnel
+					tunnelKey := fmt.Sprintf("%s-%s", currentRoom.Name, nextRoom.Name)
+
+					// Vérification de l'occupation
+					if !occupiedRoom[nextRoom] && occupiedTunnels[tunnelKey] == 0 {
+						// Mise à jour des occupations
 						if currentRoom == &data.StartRoom {
 							data.StartRoom.AntNb--
+							// Incrémenter le compteur de fourmis sur ce chemin lorsqu'une fourmi quitte la salle de départ
+							antsOnPath[pathIndex]++
 						}
+
 						ant.OccupyingRoom.Occupied = false
 						ant.OccupyingRoom = nextRoom
+						occupiedTunnels[tunnelKey] = 1
 
 						if ant.OccupyingRoom == &data.EndRoom {
 							hasArrived++
-							fmt.Printf("Ant %s has arrived at the end room!\n", ant.Name)
+							// Décrémenter le compteur de fourmis sur ce chemin lorsqu'une fourmi atteint la salle de fin
+							antsOnPath[pathIndex]--
 						} else {
 							ant.OccupyingRoom.Occupied = true
 							occupiedRoom[nextRoom] = true
-							occupiedtunnels[tunnel] = true
 						}
-
 						moves = append(moves, fmt.Sprintf("%s-%s", ant.Name, nextRoom.Name))
-						moveMade = true
 						instCount++
 						break
-					} else {
-						tunnel := data.GetTunnel(currentRoom, nextRoom)
-						fmt.Printf("Room %s or tunnel %s->%s is occupied! Room occupied: %v, Tunnel occupied: %v\n",
-							nextRoom.Name, currentRoom.Name, nextRoom.Name,
-							occupiedRoom[nextRoom], occupiedtunnels[tunnel])
 					}
 				}
 			}
-			if moveMade {
-				// Incrémenter le nombre de fourmis sur ce chemin
-				antsOnPath[pathIndex]++
-			} else {
-				fmt.Printf("Ant %s could not move\n", ant.Name)
-			}
 		}
-
 		turnCount++
 
 		for _, move := range moves {
@@ -97,13 +74,16 @@ func MoveAnts(pathfinder *PathFinder, data *LeminData, maxTurns int) {
 		}
 		fmt.Println()
 
+		for key := range occupiedTunnels {
+			occupiedTunnels[key] = 0
+		}
+
+		occupiedRoom = make(map[*Room]bool)
+
 		if hasArrived == len(data.AntList) {
 			break
 		}
-
-		// Réinitialiser la map occupiedRoom à la fin de chaque tour
-		occupiedRoom = map[*Room]bool{}
-		occupiedtunnels = map[*Connection]bool{}
 	}
-	fmt.Printf("Number of instructions: %d\nNumber of Turns: %d\n", instCount, turnCount)
+
+	fmt.Printf("Nombre d'instructions: %d\nNombre de Tours: %d\n", instCount, turnCount)
 }

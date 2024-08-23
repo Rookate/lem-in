@@ -1,18 +1,20 @@
 package lemin
 
-func DFS(data *LeminData, currentRoom *Room, visited map[string]bool, path []*Room, pathFinder *PathFinder) {
+func DFS(data *LeminData, currentRoom *Room, endRoom *Room, visited map[string]bool, path []*Room, pathFinder *PathFinder) {
 	visited[currentRoom.Name] = true
 	path = append(path, currentRoom)
 
-	if currentRoom != &data.EndRoom {
-		for _, neighbor := range data.GetNeighbors(currentRoom) {
+	if currentRoom != endRoom {
+		neighbors := data.GetNeighbors(currentRoom)
+		for _, neighbor := range neighbors {
 			if !visited[neighbor.Name] {
-				DFS(data, neighbor, visited, path, pathFinder)
+				DFS(data, neighbor, endRoom, visited, path, pathFinder)
 			}
 		}
 	} else {
-		// Copy the path and append it to AllPaths
-		copiedPath := append([]*Room{}, path...)
+		// Copy the path
+		copiedPath := make([]*Room, len(path))
+		copy(copiedPath, path)
 		if !Doublon(copiedPath, pathFinder.AllPaths) {
 			pathFinder.AllPaths = append(pathFinder.AllPaths, copiedPath)
 		}

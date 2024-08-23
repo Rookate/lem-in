@@ -31,14 +31,12 @@ func Compare(r1, r2 *Room) bool {
 	return r1.Name == r2.Name && r1.X == r2.X && r1.Y == r2.Y && r1.Occupied == r2.Occupied
 }
 
-func (data *LeminData) GetTunnel(r1, r2 *Room) *Connection {
-	for _, tunnel := range data.ConnectionList {
-		if (tunnel.From == r1 && tunnel.To == r2) || (tunnel.To == r1 && tunnel.From == r2) {
-			fmt.Printf("Found tunnel between %s and %s\n", r1.Name, r2.Name)
-			return &tunnel
+func (data *LeminData) GetTunnel(from *Room, to *Room) *Connection {
+	for _, connection := range data.ConnectionList {
+		if (connection.From.Name == from.Name && connection.To.Name == to.Name) || (connection.From.Name == to.Name && connection.To.Name == from.Name) {
+			return &connection
 		}
 	}
-	fmt.Printf("No tunnel found between %s and %s\n", r1.Name, r2.Name)
 	return nil
 }
 
@@ -46,9 +44,9 @@ func (data *LeminData) GetNeighbors(room *Room) []*Room {
 	neighbors := make([]*Room, 0)
 
 	for _, tunnel := range data.ConnectionList {
-		if tunnel.From == room {
+		if tunnel.From.Name == room.Name {
 			neighbors = append(neighbors, tunnel.To)
-		} else if tunnel.To == room {
+		} else if tunnel.To.Name == room.Name {
 			neighbors = append(neighbors, tunnel.From)
 		}
 	}

@@ -1,7 +1,5 @@
 package lemin
 
-import "fmt"
-
 /* func MoveAntss(pathfinder *PathFinder, data *LeminData, ants []Ant) {
 	occupiedRoom := make(map[*Room]bool)
 	endRoomCooldown := make(map[int]bool)
@@ -109,7 +107,26 @@ func (data *LeminData) NextBestMove(pathfinder *PathFinder, currentRoom *Room) *
 	return currentRoom
 }
 
-func MoveAntsss(pathfinder *PathFinder, data *LeminData) {
+// Fonction pour vérifier si startRoom est directement reliée à endRoom
+func isDirectlyConnected(startRoom Room, endRoom Room, allPaths [][]*Room) bool {
+	for _, path := range allPaths {
+		if len(path) == 2 && *path[0] == startRoom && *path[1] == endRoom {
+			return true
+		}
+	}
+	return false
+}
+
+func getNextRoomOnPath(path []*Room, currentRoom *Room) *Room {
+	for i := 0; i < len(path)-1; i++ {
+		if path[i] == currentRoom {
+			return path[i+1]
+		}
+	}
+	return nil
+}
+
+/*func MoveAntsss(pathfinder *PathFinder, data *LeminData) {
 	occupiedRoom := make(map[*Room]bool)
 	endRoomCooldown := make(map[int]int) // Map to track the cooldown for each path
 	var nextRoom *Room

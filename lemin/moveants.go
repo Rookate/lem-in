@@ -1,88 +1,80 @@
 package lemin
 
-/* func MoveAntss(pathfinder *PathFinder, data *LeminData, ants []Ant) {
-	occupiedRoom := make(map[*Room]bool)
-	endRoomCooldown := make(map[int]bool)
-	var nextRoom *Room
-	count := 0
+import "fmt"
+
+func MoveAnts(pathfinder *PathFinder, data *LeminData) {
+	instCount := 0
 	turnCount := 0
+	occupiedTunnels := make(map[string]int)
+	initialThreshold := int(0.3 * float64(len(data.AntList)))
+
+	robinetMode := isDirectlyConnected(data.StartRoom, data.EndRoom, pathfinder.AllPaths)
 
 	for {
-		allAntsAtEnd := true
-		var moves []string
+		for i := range data.AntList {
+			ant := &data.AntList[i]
 
-		for i := 0; i < len(data.AntList); i++ {
-			ant := &ants[i]
-
-			if ant.OccupyingRoom == &data.EndRoom {
+			if *ant.OccupyingRoom == data.EndRoom {
 				continue
 			}
 
-			moveMade := false
-			currentRoom := ant.OccupyingRoom
+			var nextMove *Room
 
-			// Trouver le meilleur chemin pour cette fourmi
-			bestPathIndex := data.NextBestMove(pathfinder, currentRoom)
-			bestPath := pathfinder.AllPaths[bestPathIndex]
-
-			for j := 0; j < len(bestPath)-1; j++ {
-				if bestPath[j] == currentRoom {
-					nextRoom = bestPath[j+1]
-
-					// Vérifier si la salle suivante est la EndRoom et si elle est en cooldown
-					if nextRoom == &data.EndRoom && endRoomCooldown[bestPathIndex] {
-						continue
-					}
-
-					if !occupiedRoom[nextRoom] {
-						ant.OccupyingRoom.Occupied = false
-						ant.OccupyingRoom = nextRoom
-
-						// Définir le cooldown si la salle suivante est la EndRoom
-						if ant.OccupyingRoom == &data.EndRoom {
-							endRoomCooldown[bestPathIndex] = true
-						} else {
-							ant.OccupyingRoom.Occupied = true
-							occupiedRoom[nextRoom] = true
-						}
-
-						moves = append(moves, fmt.Sprintf("%s-%s", ant.Name, nextRoom.Name))
-						moveMade = true
-						count++
-						break
-					}
-				}
+			if robinetMode && data.StartRoom.AntNb > uint(initialThreshold) {
+				// Répartition cyclique des fourmis initiales
+				pathIndex := i % len(pathfinder.AllPaths)
+				path := pathfinder.AllPaths[pathIndex]
+				// Trouver la salle suivante sur le chemin
+				nextMove = getNextRoomOnPath(path, ant.OccupyingRoom)
+			} else {
+				//fmt.Printf("Ant \"%s\" in room \"%s\":\n", data.AntList[i].Name, data.AntList[i].OccupyingRoom.Name)
+				nextMove = data.NextBestMove(pathfinder, ant.OccupyingRoom)
 			}
 
-			// Si une fourmi n'a pas bougé, elle n'est pas encore arrivée à la salle finale
-			if !moveMade {
-				allAntsAtEnd = false
+			if nextMove == ant.OccupyingRoom || nextMove == nil {
+				//fmt.Println("It cannot proceed. It waits its turn.")
+				continue
 			}
+
+			tunnelKey := fmt.Sprintf("%s-%s", ant.OccupyingRoom.Name, nextMove.Name)
+
+			if occupiedTunnels[tunnelKey] > 0 {
+				continue
+			}
+
+			occupiedTunnels[tunnelKey] = 1
+
+			//fmt.Printf("Best move is \"%s\" -> \"%s\".\n", data.AntList[i].OccupyingRoom.Name, nextMove.Name)
+			if data.GetRoomIndexFromName(ant.OccupyingRoom.Name) >= 0 {
+				data.OtherRooms[data.GetRoomIndexFromName(ant.OccupyingRoom.Name)].Occupied = false
+			}
+			data.AntList[i].OccupyingRoom = nextMove
+			//fmt.Printf("Ant \"%s\" moved to \"%s\".\n", data.AntList[i].Name, data.AntList[i].OccupyingRoom.Name)
+			if data.GetRoomIndexFromName(ant.OccupyingRoom.Name) >= 0 {
+				data.OtherRooms[data.GetRoomIndexFromName(ant.OccupyingRoom.Name)].Occupied = true
+			} else if *ant.OccupyingRoom == data.EndRoom {
+				data.EndRoom.AntNb++
+				//fmt.Printf("And it has arrived to its destination. It's #%d.\n", data.EndRoom.AntNb)
+			}
+
+			fmt.Print(ant.Name + "-" + ant.OccupyingRoom.Name + " ")
+			instCount++
 		}
 
-		// Décrémenter le cooldown pour chaque chemin
-		for pathIndex := range endRoomCooldown {
-			if endRoomCooldown[pathIndex] {
-				endRoomCooldown[pathIndex] = false
-			}
-		}
-
+		fmt.Println()
 		turnCount++
 
-		for _, move := range moves {
-			fmt.Printf("%s ", move)
+		for key := range occupiedTunnels {
+			occupiedTunnels[key] = 0
 		}
-		fmt.Println()
 
-		if allAntsAtEnd {
+		if int(data.EndRoom.AntNb) == len(data.AntList) {
 			break
 		}
-
-		// Réinitialiser la map occupiedRoom à la fin de chaque tour
-		occupiedRoom = make(map[*Room]bool)
 	}
-	fmt.Printf("Number of instructions: %d\nNumber of Turns: %d\n", count, turnCount)
-} */
+
+	fmt.Printf("Nombre d'instructions: %d\nNombre de Tours: %d\n", instCount, turnCount)
+}
 
 func (data *LeminData) NextBestMove(pathfinder *PathFinder, currentRoom *Room) *Room {
 	if currentRoom == nil || pathfinder == nil {
@@ -125,101 +117,3 @@ func getNextRoomOnPath(path []*Room, currentRoom *Room) *Room {
 	}
 	return nil
 }
-
-/*func MoveAntsss(pathfinder *PathFinder, data *LeminData) {
-	occupiedRoom := make(map[*Room]bool)
-	endRoomCooldown := make(map[int]int) // Map to track the cooldown for each path
-	var nextRoom *Room
-	hasArrived := 0
-	instCount := 0
-	turnCount := 0
-
-	for {
-		var moves []string
-
-		for i := 0; i < len(data.AntList); i++ {
-			ant := &data.AntList[i]
-
-			if ant.OccupyingRoom == &data.EndRoom {
-				continue
-			}
-
-			moveMade := false
-
-			for pathIndex, path := range pathfinder.AllPaths {
-				currentRoom := ant.OccupyingRoom
-
-				for j := 0; j < len(path)-1; j++ {
-					if path[j] == currentRoom {
-						nextRoom = path[j+1]
-
-						// Check if the nextRoom is the endRoom and if it's available
-						if nextRoom == &data.EndRoom && endRoomCooldown[pathIndex] > 0 {
-							continue
-						}
-
-						if !occupiedRoom[nextRoom] {
-							ant.OccupyingRoom.Occupied = false
-							ant.OccupyingRoom = nextRoom
-
-							if ant.OccupyingRoom == &data.EndRoom {
-								hasArrived++
-								// Set cooldown for the endRoom for this path
-								endRoomCooldown[pathIndex] = 1
-							} else {
-								ant.OccupyingRoom.Occupied = true
-								occupiedRoom[nextRoom] = true
-							}
-
-							moves = append(moves, fmt.Sprintf("%s-%s", ant.Name, nextRoom.Name))
-							moveMade = true
-							instCount++
-							break
-						}
-					}
-					if moveMade {
-						break
-					}
-				}
-				if moveMade {
-					break
-				}
-			}
-		}
-
-		// Decrement the cooldown for the endRoom for each path
-		for pathIndex := range endRoomCooldown {
-			if endRoomCooldown[pathIndex] > 0 {
-				endRoomCooldown[pathIndex]--
-			}
-		}
-
-		turnCount++
-
-		for _, move := range moves {
-			fmt.Printf("%s ", move)
-		}
-		fmt.Println()
-
-		if hasArrived == len(data.AntList) {
-			break
-		}
-
-		// Reset the occupiedRoom map at the end of each turn
-		occupiedRoom = make(map[*Room]bool)
-	}
-	fmt.Printf("Number of instructions: %d\nNumber of Turns: %d\n", instCount, turnCount)
-}
-
-/*
-
-	- Find Best path possible
-	- we need to add the number of ant in the actual path and the number of rooms. For exemple if we have 3 ants on the path and we have 5 rooms before we get the endroom.
-	The ant will take 8 instructions to get endroom
-	- Then we have to compare path to get the best path.
-
-
-	First idea : Get the Best path for each ant then move them.
-	 - Get Start Room then decrement the number of ant when then leave start Room
-	 - Savoir si la fourmi quitte la room de départ
-*/

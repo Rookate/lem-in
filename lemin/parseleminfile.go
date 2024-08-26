@@ -3,7 +3,6 @@ package lemin
 import (
 	"bufio"
 	"fmt"
-	"lemin/common"
 	"math"
 	"os"
 	"strconv"
@@ -22,7 +21,6 @@ func ParseLeminFile(fname string) (*LeminData, error) {
 	}
 
 	data := new(LeminData)
-	//graph := NewGraph()
 	lineScanner := bufio.NewScanner(fobj)
 	lineCount := 0
 	startNext, endNext := false, false
@@ -36,20 +34,20 @@ func ParseLeminFile(fname string) (*LeminData, error) {
 			if line[1] != '#' {
 				if line[1] == ' ' {
 					data = nil
-					return nil, fmt.Errorf("illegal syntax at line %d", lineCount)
+					return nil, fmt.Errorf("illegal comment syntax at line %d", lineCount)
 				}
 				continue
 			} else {
 				switch line[2:] {
 				case "start":
-					if startNext {
+					if startNext || data.StartRoom != (Room{}) {
 						data = nil
 						return nil, fmt.Errorf("duplicate 'start' indicator at line %d", lineCount)
 					}
 					startNext = true
 
 				case "end":
-					if endNext {
+					if endNext || data.EndRoom != (Room{}) {
 						data = nil
 						return nil, fmt.Errorf("duplicate 'end' indicator at line %d", lineCount)
 					}
@@ -87,11 +85,6 @@ func ParseLeminFile(fname string) (*LeminData, error) {
 			}
 			room.Name = vals[0]
 
-			if !common.IsNumeric(vals[1]) || !common.IsNumeric(vals[2]) {
-				data = nil
-				return nil, fmt.Errorf("invalid room coordinates at line %d", lineCount)
-			}
-
 			x, errX := strconv.Atoi(vals[1])
 			if errX != nil {
 				data = nil
@@ -107,8 +100,6 @@ func ParseLeminFile(fname string) (*LeminData, error) {
 			room.Y = y
 
 			room.AntNb = 0
-
-			//graph.AddRoom(&room)
 
 			if startNext {
 				if data.StartRoom != (Room{}) {

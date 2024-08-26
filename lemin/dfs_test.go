@@ -52,7 +52,7 @@ func TestMoveAnts(t *testing.T) {
 	}
 
 	// Appel de la fonction à tester avec une limite de 20 tours
-	SortPaths(pathFinder)
+	SortbyPaths(pathFinder)
 	MoveAnts(pathFinder, data)
 
 	// Vérification que toutes les fourmis ont atteint la salle de fin

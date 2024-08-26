@@ -4,16 +4,6 @@ import (
 	"sort"
 )
 
-func (data *LeminData) CalculateDistanceTunnels(path []*Tunnel) float64 {
-	totalDistance := 0.0
-
-	for _, tunnel := range path {
-		totalDistance += tunnel.Distance
-	}
-
-	return totalDistance
-}
-
 func (data *LeminData) CalculateDistanceRooms(path []*Room) float64 {
 	totalDistance := 0.0
 
@@ -29,7 +19,28 @@ func (data *LeminData) CalculateDistanceRooms(path []*Room) float64 {
 	return totalDistance
 }
 
-func SortPaths(pathFinder *PathFinder) {
+func SortbyPaths(pathFinder *PathFinder) {
+	indices := make([]int, len(pathFinder.AllPaths))
+	for i := range indices {
+		indices[i] = i
+	}
+
+	sort.Slice(indices, func(i, j int) bool {
+		return len(pathFinder.AllPaths[indices[i]]) < len(pathFinder.AllPaths[indices[j]])
+	})
+
+	sortedPaths := make([][]*Room, len(pathFinder.AllPaths))
+	sortedDistances := make([]float64, len(pathFinder.AllDistancePaths))
+
+	for i, index := range indices {
+		sortedPaths[i] = pathFinder.AllPaths[index]
+		sortedDistances[i] = pathFinder.AllDistancePaths[index]
+	}
+	pathFinder.AllPaths = sortedPaths
+	pathFinder.AllDistancePaths = sortedDistances
+}
+
+func SortbyDistance(pathFinder *PathFinder) {
 	indices := make([]int, len(pathFinder.AllDistancePaths))
 	for i := range indices {
 		indices[i] = i

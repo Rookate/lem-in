@@ -1,16 +1,22 @@
 package lemin
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
-func MoveAnts(pathfinder *PathFinder, data *LeminData) {
-	instCount := 0
+func MoveAnts(pathfinder *PathFinder, data *LeminData) ([]string, int) {
 	turnCount := 0
 	occupiedTunnels := make(map[string]int)
-	initialThreshold := int(0.3 * float64(len(data.AntList)))
+	initialThreshold := int(0.1 * float64(len(data.AntList)))
+	var moves []string
 
-	robinetMode := isDirectlyConnected(data.StartRoom, data.EndRoom, pathfinder.AllPaths)
+	robinetMode := data.isDirectlyConnected(data.StartRoom, data.EndRoom)
 
 	for {
+		// Initialiser la liste des mouvements pour ce tour
+		var currentTurnMoves []string
+
 		for i := range data.AntList {
 			ant := &data.AntList[i]
 
@@ -27,12 +33,11 @@ func MoveAnts(pathfinder *PathFinder, data *LeminData) {
 				// Trouver la salle suivante sur le chemin
 				nextMove = getNextRoomOnPath(path, ant.OccupyingRoom)
 			} else {
-				//fmt.Printf("Ant \"%s\" in room \"%s\":\n", data.AntList[i].Name, data.AntList[i].OccupyingRoom.Name)
+				// Choisir le meilleur mouvement basé sur les critères
 				nextMove = data.NextBestMove(pathfinder, ant.OccupyingRoom)
 			}
 
 			if nextMove == ant.OccupyingRoom || nextMove == nil {
-				//fmt.Println("It cannot proceed. It waits its turn.")
 				continue
 			}
 
@@ -44,26 +49,32 @@ func MoveAnts(pathfinder *PathFinder, data *LeminData) {
 
 			occupiedTunnels[tunnelKey] = 1
 
-			//fmt.Printf("Best move is \"%s\" -> \"%s\".\n", data.AntList[i].OccupyingRoom.Name, nextMove.Name)
+			if ant.OccupyingRoom == &data.StartRoom {
+				data.StartRoom.AntNb--
+			}
+
 			if data.GetRoomIndexFromName(ant.OccupyingRoom.Name) >= 0 {
 				data.OtherRooms[data.GetRoomIndexFromName(ant.OccupyingRoom.Name)].Occupied = false
 			}
-			data.AntList[i].OccupyingRoom = nextMove
-			//fmt.Printf("Ant \"%s\" moved to \"%s\".\n", data.AntList[i].Name, data.AntList[i].OccupyingRoom.Name)
+			ant.OccupyingRoom = nextMove
 			if data.GetRoomIndexFromName(ant.OccupyingRoom.Name) >= 0 {
 				data.OtherRooms[data.GetRoomIndexFromName(ant.OccupyingRoom.Name)].Occupied = true
 			} else if *ant.OccupyingRoom == data.EndRoom {
 				data.EndRoom.AntNb++
-				//fmt.Printf("And it has arrived to its destination. It's #%d.\n", data.EndRoom.AntNb)
 			}
 
-			fmt.Print(ant.Name + "-" + ant.OccupyingRoom.Name + " ")
-			instCount++
+			// Ajouter le mouvement à la liste pour ce tour
+			currentTurnMoves = append(currentTurnMoves, fmt.Sprintf("%s-%s", ant.Name, ant.OccupyingRoom.Name))
 		}
 
-		fmt.Println()
+		// Ajouter les mouvements du tour actuel à la liste globale
+		if len(currentTurnMoves) > 0 {
+			moves = append(moves, strings.Join(currentTurnMoves, " "))
+		}
+
 		turnCount++
 
+		// Réinitialiser les tunnels occupés pour le prochain tour
 		for key := range occupiedTunnels {
 			occupiedTunnels[key] = 0
 		}
@@ -73,7 +84,7 @@ func MoveAnts(pathfinder *PathFinder, data *LeminData) {
 		}
 	}
 
-	fmt.Printf("Nombre d'instructions: %d\nNombre de Tours: %d\n", instCount, turnCount)
+	return moves, turnCount
 }
 
 func (data *LeminData) NextBestMove(pathfinder *PathFinder, currentRoom *Room) *Room {
@@ -100,9 +111,9 @@ func (data *LeminData) NextBestMove(pathfinder *PathFinder, currentRoom *Room) *
 }
 
 // Fonction pour vérifier si startRoom est directement reliée à endRoom
-func isDirectlyConnected(startRoom Room, endRoom Room, allPaths [][]*Room) bool {
-	for _, path := range allPaths {
-		if len(path) == 2 && *path[0] == startRoom && *path[1] == endRoom {
+func (data *LeminData) isDirectlyConnected(r1 Room, r2 Room) bool {
+	for _, path := range data.TunnelList {
+		if *path.From == r1 && *path.To == r2 || *path.From == r2 && *path.To == r1 {
 			return true
 		}
 	}

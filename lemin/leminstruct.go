@@ -111,11 +111,6 @@ func (lem *LeminData) IsValidData() (bool, string) {
 		return false, "amount of ants cannot be zero"
 	}
 
-	// Is this really an error?
-	// if len(lem.OtherRooms) == 0 {
-	// 	return false, "there must be other rooms in the farm"
-	// }
-
 	var names []string
 
 	if lem.StartRoom.Name[0] == 'L' {
@@ -142,7 +137,7 @@ func (lem *LeminData) IsValidData() (bool, string) {
 	}
 
 	for _, path1 := range lem.TunnelList {
-		if path1.From == path1.To {
+		if *path1.From == *path1.To {
 			return false, "paths cannot link a room to itself"
 		}
 
@@ -157,17 +152,3 @@ func (lem *LeminData) IsValidData() (bool, string) {
 
 	return true, ""
 }
-
-// Not necessary + not as easy as I thought
-// func (lem *LeminData) DrawFarm() (bool, error) {
-// 	{
-// 		ok, err := lem.IsValidData()
-// 		if !ok {
-// 			return ok, fmt.Errorf("invalid data structure:\n%s", err)
-// 		}
-// 	}
-
-// 	// TODO : Draw the best farm ever
-
-// 	return true, nil
-// }
